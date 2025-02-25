@@ -5,6 +5,7 @@ const EMPTY = ' ';
 const container = document.getElementById('fieldWrapper');
 let field = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
 let counter = 0
+let isWin = false;
 
 startGame();
 addResetListener();
@@ -29,14 +30,13 @@ function renderGrid (dimension) {
 }
 
 function cellClickHandler (row, col) {
-    if (field[row][col] === ZERO || field[row][col] === CROSS)
-        return;
+    if (field[row][col] === ZERO || field[row][col] === CROSS || isWin)
+        return
     let move = counter % 2 === 0 ? CROSS : ZERO
+    counter++;
+    console.log(`Clicked on cell: ${row}, ${col}, move: ${move}`)
     field[row][col] = move;
     renderSymbolInCell(move, row, col);
-    counter++;
-    console.log(`Clicked on cell: ${row}, ${col}, move: ${move}`);
-    checkForWinner();
 }
 
 function checkForWinner() {
@@ -71,25 +71,18 @@ function checkForWinner() {
 
 function announceWinner(winner) {
     alert(`Победил игрок ${winner}!`);
-    resetGame();
+    isWin = true;
 }
 
 function announceDraw() {
     alert('Победила дружба!');
-    resetGame();
-}
-
-function resetGame() {
-    field = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
-    counter = 0;
-    clearField();
+    isWin = true;
 }
 
 function renderSymbolInCell (symbol, row, col, color = '#333') {
     const targetCell = findCell(row, col);
-
     targetCell.textContent = symbol;
-    targetCell.style.color = color;
+    targetCell.style.color = color
 }
 
 function findCell (row, col) {
@@ -107,11 +100,12 @@ function resetClickHandler () {
     counter = 0;
     clearField()
     console.log('reset!');
+    isWin = false;
 }
 
 function clearField() {
-    for (let x = 0; x <= 2; x++) {
-        for (let y = 0; y <= 2; y++){
+    for (let x = 0; x < field.length; x++) {
+        for (let y = 0; y < field[0].length; y++){
             renderSymbolInCell(EMPTY, x, y);
         }
     }

@@ -16,10 +16,9 @@ function startGame() {
     if (isNaN(dimension) || dimension <= 0)
         alert("Пожалуйста, введите положительное число!");
 
-    field = createSquareArray(dimension)
+    field = createSquareArray(dimension);
     renderGrid(dimension);
 }
-
 
 function createSquareArray(size, initialValue = EMPTY) {
     let array = new Array(size);
@@ -48,47 +47,80 @@ function renderGrid(dimension) {
 }
 
 function cellClickHandler(row, col) {
-    if (field[row][col] === ZERO || field[row][col] === CROSS || isWin)
-        return;
+    if (field[row][col] !== EMPTY || isWin) return;
+
     let move = counter % 2 === 0 ? CROSS : ZERO;
     counter++;
     console.log(`Clicked on cell: ${row}, ${col}, move: ${move}`);
     field[row][col] = move;
     renderSymbolInCell(move, row, col);
-    checkForWinner();
-}
 
-function checkForWinner() {
-    for (let i = 0; i < 3; i++) {
-        if (field[i][0] !== EMPTY && field[i][0] === field[i][1] && field[i][1] === field[i][2]) {
-            highlightWinningCells([{row: i, col: 0}, {row: i, col: 1}, {row: i, col: 2}]);
-            announceWinner(field[i][0]);
-            return;
-        }
-    }
-    for (let j = 0; j < 3; j++) {
-        if (field[0][j] !== EMPTY && field[0][j] === field[1][j] && field[1][j] === field[2][j]) {
-            highlightWinningCells([{row: 0, col: j}, {row: 1, col: j}, {row: 2, col: j}]);
-            announceWinner(field[0][j]);
-            return;
-        }
-    }
-    if (field[0][0] !== EMPTY && field[0][0] === field[1][1] && field[1][1] === field[2][2]) {
-        highlightWinningCells([{row: 0, col: 0}, {row: 1, col: 1}, {row: 2, col: 2}]);
-        announceWinner(field[0][0]);
-        return;
-    }
-    if (field[0][2] !== EMPTY && field[0][2] === field[1][1] && field[1][1] === field[2][0]) {
-        highlightWinningCells([{row: 0, col: 2}, {row: 1, col: 1}, {row: 2, col: 0}]);
-        announceWinner(field[0][2]);
-        return;
-    }
-    if (counter === 9) {
+    if (checkForWinner(row, col, move)) {
+        announceWinner(move);
+    } else if (counter === field.length * field.length) {
         announceDraw();
     }
 }
 
-function highlightWinningCells(cells) {
+function checkForWinner(row, col, symbol) {
+    const directions = [
+        { dr: 0, dc: 1 },
+        { dr: 1, dc: 0 },
+        { dr: 1, dc: 1 },
+        { dr: 1, dc: -1 }
+    ];
+
+    for (const direction of directions) {
+        let count = 1; // Текущая клетка уже содержит символ
+        count += countConsecutive(row, col, direction.dr, direction.dc, symbol);
+        count += countConsecutive(row, col, -direction.dr, -direction.dc, symbol);
+
+        if (count >= 3) {
+            highlightWinningCells(row, col, direction.dr, direction.dc, symbol);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function countConsecutive(row, col, dr, dc, symbol) {
+    let count = 0;
+    let r = row + dr;
+    let c = col + dc;
+
+    while (r >= 0 && r < field.length && c >= 0 && c < field.length && field[r][c] === symbol) {
+        count++;
+        r += dr;
+        c += dc;
+    }
+
+    return count;
+}
+
+function highlightWinningCells(row, col, dr, dc, symbol) {
+    const cells = [];
+    let r = row;
+    let c = col;
+
+    cells.push({ row: r, col: c });
+
+    r = row + dr;
+    c = col + dc;
+    while (r >= 0 && r < field.length && c >= 0 && c < field.length && field[r][c] === symbol) {
+        cells.push({ row: r, col: c });
+        r += dr;
+        c += dc;
+    }
+
+    r = row - dr;
+    c = col - dc;
+    while (r >= 0 && r < field.length && c >= 0 && c < field.length && field[r][c] === symbol) {
+        cells.push({ row: r, col: c });
+        r -= dr;
+        c -= dc;
+    }
+
     cells.forEach(cell => {
         const targetCell = findCell(cell.row, cell.col);
         targetCell.style.color = 'red';
@@ -124,7 +156,7 @@ function addResetListener() {
 function resetClickHandler() {
     counter = 0;
     isWin = false;
-    startGame()
+    startGame();
     clearField();
     console.log('reset!');
 }

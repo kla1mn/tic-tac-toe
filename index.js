@@ -36,7 +36,15 @@ function cellClickHandler (row, col) {
     renderSymbolInCell(move, row, col);
     counter++;
     console.log(`Clicked on cell: ${row}, ${col}, move: ${move}`);
+    checkForWinner();
+}
 
+//
+
+function resetGame() {
+    field = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
+    counter = 0;
+    clearField();
 }
 
 function renderSymbolInCell (symbol, row, col, color = '#333') {

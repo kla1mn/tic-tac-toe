@@ -3,7 +3,7 @@ const ZERO = 'O';
 const EMPTY = ' ';
 
 const container = document.getElementById('fieldWrapper');
-let field = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
+let field;
 let counter = 0;
 let isWin = false;
 
@@ -11,7 +11,25 @@ startGame();
 addResetListener();
 
 function startGame() {
-    renderGrid(3);
+    let dimension = parseInt(prompt("Введите ширину поля для игры в крестики-нолики:"));
+
+    if (isNaN(dimension) || dimension <= 0)
+        alert("Пожалуйста, введите положительное число!");
+
+    field = createSquareArray(dimension)
+    renderGrid(dimension);
+}
+
+
+function createSquareArray(size, initialValue = EMPTY) {
+    let array = new Array(size);
+    for (let i = 0; i < size; i++) {
+        array[i] = new Array(size);
+        for (let j = 0; j < size; j++) {
+            array[i][j] = initialValue;
+        }
+    }
+    return array;
 }
 
 function renderGrid(dimension) {
@@ -41,7 +59,6 @@ function cellClickHandler(row, col) {
 }
 
 function checkForWinner() {
-    // Проверка строк
     for (let i = 0; i < 3; i++) {
         if (field[i][0] !== EMPTY && field[i][0] === field[i][1] && field[i][1] === field[i][2]) {
             highlightWinningCells([{row: i, col: 0}, {row: i, col: 1}, {row: i, col: 2}]);
@@ -49,7 +66,6 @@ function checkForWinner() {
             return;
         }
     }
-    // Проверка столбцов
     for (let j = 0; j < 3; j++) {
         if (field[0][j] !== EMPTY && field[0][j] === field[1][j] && field[1][j] === field[2][j]) {
             highlightWinningCells([{row: 0, col: j}, {row: 1, col: j}, {row: 2, col: j}]);
@@ -57,19 +73,16 @@ function checkForWinner() {
             return;
         }
     }
-    // Проверка главной диагонали
     if (field[0][0] !== EMPTY && field[0][0] === field[1][1] && field[1][1] === field[2][2]) {
         highlightWinningCells([{row: 0, col: 0}, {row: 1, col: 1}, {row: 2, col: 2}]);
         announceWinner(field[0][0]);
         return;
     }
-    // Проверка побочной диагонали
     if (field[0][2] !== EMPTY && field[0][2] === field[1][1] && field[1][1] === field[2][0]) {
         highlightWinningCells([{row: 0, col: 2}, {row: 1, col: 1}, {row: 2, col: 0}]);
         announceWinner(field[0][2]);
         return;
     }
-    // Проверка на ничью
     if (counter === 9) {
         announceDraw();
     }
@@ -109,9 +122,9 @@ function addResetListener() {
 }
 
 function resetClickHandler() {
-    field = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
     counter = 0;
     isWin = false;
+    startGame()
     clearField();
     console.log('reset!');
 }
@@ -122,35 +135,4 @@ function clearField() {
             renderSymbolInCell(EMPTY, x, y);
         }
     }
-}
-
-/* Test Function */
-
-/* Победа первого игрока */
-function testWin() {
-    clickOnCell(0, 2);
-    clickOnCell(0, 0);
-    clickOnCell(2, 0);
-    clickOnCell(1, 1);
-    clickOnCell(2, 2);
-    clickOnCell(1, 2);
-    clickOnCell(2, 1);
-}
-
-/* Ничья */
-function testDraw() {
-    clickOnCell(2, 0);
-    clickOnCell(1, 0);
-    clickOnCell(1, 1);
-    clickOnCell(0, 0);
-    clickOnCell(1, 2);
-    clickOnCell(1, 2);
-    clickOnCell(0, 2);
-    clickOnCell(0, 1);
-    clickOnCell(2, 1);
-    clickOnCell(2, 2);
-}
-
-function clickOnCell(row, col) {
-    findCell(row, col).click();
 }

@@ -39,7 +39,45 @@ function cellClickHandler (row, col) {
     checkForWinner();
 }
 
-//
+function checkForWinner() {
+    for (let i = 0; i < 3; i++) {
+        if (field[i][0] !== EMPTY && field[i][0] === field[i][1] && field[i][1] === field[i][2]) {
+            announceWinner(field[i][0]);
+            return;
+        }
+    }
+
+    for (let j = 0; j < 3; j++) {
+        if (field[0][j] !== EMPTY && field[0][j] === field[1][j] && field[1][j] === field[2][j]) {
+            announceWinner(field[0][j]);
+            return;
+        }
+    }
+
+    if (field[0][0] !== EMPTY && field[0][0] === field[1][1] && field[1][1] === field[2][2]) {
+        announceWinner(field[0][0]);
+        return;
+    }
+
+    if (field[0][2] !== EMPTY && field[0][2] === field[1][1] && field[1][1] === field[2][0]) {
+        announceWinner(field[0][2]);
+        return;
+    }
+
+    if (counter === 9) {
+        announceDraw();
+    }
+}
+
+function announceWinner(winner) {
+    alert(`Победил игрок ${winner}!`);
+    resetGame();
+}
+
+function announceDraw() {
+    alert('Победила дружба!');
+    resetGame();
+}
 
 function resetGame() {
     field = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
